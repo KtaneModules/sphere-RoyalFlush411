@@ -512,15 +512,12 @@ public class theSphereScript : MonoBehaviour
         }
         if(answerCheck)
         {
-            foreach(GameObject stageLight in stageLights)
-            {
-                stageLight.SetActive(false);
-            }
+            for (int i = stage; i < 11; i++)
+                stageLights[i].SetActive(false);
             answerCheck = false;
         }
         sphere.AddInteractionPunch(0.5f);
-        timeOfPress = Bomb.GetTime() % 60;
-        timeOfPress = Mathf.FloorToInt(timeOfPress);
+        timeOfPress = Bomb.GetTime();
         pressed = true;
         interactionLights.SetActive(true);
         StartCoroutine(checkForHold());
@@ -542,13 +539,8 @@ public class theSphereScript : MonoBehaviour
         {
             return;
         }
-        timeOfRelease = Bomb.GetTime() % 60;
-        timeOfRelease = Mathf.FloorToInt(timeOfRelease);
-        if(timeOfPress < timeOfRelease)
-        {
-            timeOfPress += 60;
-        }
-        heldTime = Mathf.FloorToInt(timeOfPress - timeOfRelease);
+        timeOfRelease = Bomb.GetTime();
+        heldTime = Mathf.RoundToInt(Mathf.Abs(timeOfPress - timeOfRelease) % 60);
         if(heldTime == 0f)
         {
             TapCheck();
@@ -559,9 +551,12 @@ public class theSphereScript : MonoBehaviour
         }
         pressed = false;
         interactionLights.SetActive(false);
-        stageLights[stage].SetActive(true);
-        stage++;
-        if(stage == 11)
+        do
+        {
+            stageLights[stage].SetActive(true);
+            stage++;
+        } while (stage < 11 && correctInput[stage]);
+        if (stage == 11)
         {
             checking = true;
             answerCheck = true;
@@ -625,26 +620,24 @@ public class theSphereScript : MonoBehaviour
                 }
             }
             yield return new WaitForSeconds(3f);
-            for(int i = 0; i <= 10; i++)
-            {
-                correctInput[i] = false;
-            }
         }
         stage = 0;
+        while (stage < 11 && correctInput[stage]) stage++;
         checking = false;
     }
 
     private void TapCheck()
     {
         stageLights[stage].GetComponentInChildren<Light>().color = stageLightColours[0];
-        if(requiresTap[stage] && (timeOfRelease % 10) == pressOrder[stage])
+        int lastSecondsDigit = Mathf.FloorToInt(timeOfPress) % 10;
+        if(requiresTap[stage] && lastSecondsDigit == pressOrder[stage])
         {
             correctInput[stage] = true;
-            Debug.LogFormat("[The Sphere #{0}] At stage {1}, you tapped the sphere when the last digit of the second timer was {2}. That is correct.", moduleId, stage + 1, timeOfPress);
+            Debug.LogFormat("[The Sphere #{0}] At stage {1}, you tapped the sphere when the last digit of the second timer was {2}. That is correct.", moduleId, stage + 1, lastSecondsDigit);
         }
         else
         {
-            Debug.LogFormat("[The Sphere #{0}] At stage {1}, you tapped the sphere when the last digit of the second timer was {2}. That is incorrect.", moduleId, stage + 1, timeOfPress);
+            Debug.LogFormat("[The Sphere #{0}] At stage {1}, you tapped the sphere when the last digit of the second timer was {2}. That is incorrect.", moduleId, stage + 1, lastSecondsDigit);
         }
     }
 

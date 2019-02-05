@@ -14,6 +14,7 @@ public class theSphereScript : MonoBehaviour
     private int colourStage = 0;
     private int lastSelected = 9;
     public Animator colourCycle;
+    public Animator[] stage5Lights;
     public KMSelectable sphere;
     public string[] colourNames;
     public string[] colourNamesCaps;
@@ -195,7 +196,7 @@ public class theSphereScript : MonoBehaviour
 
     private void CalculateOrder()
     {
-        if(AABatts == 2 && Bomb.GetPortCount(Port.RJ45) == 1 && Bomb.IsIndicatorOn("FRQ") && Bomb.GetBatteryHolderCount() == 2 && Bomb.GetPortPlateCount() == 3)
+        if(AABatts == 2 && Bomb.GetPortCount(Port.Serial) == 1 && Bomb.IsIndicatorOff("FRQ") && Bomb.GetPortPlateCount() == 3)
         {
             pressOrder[0] = tapTimes[0];
             pressOrder[1] = holdTimes[0];
@@ -449,6 +450,8 @@ public class theSphereScript : MonoBehaviour
             if(colourStage == 4)
             {
                 Audio.PlaySoundAtTransform("colour5Beep", transform);
+                stage5Lights[0].SetBool("stage5", true);
+                stage5Lights[1].SetBool("stage5", true);
             }
             if(selectedColourIndices[colourStage] == 0)
             {
@@ -498,6 +501,8 @@ public class theSphereScript : MonoBehaviour
                 yield return new WaitForSeconds(1f);
                 colourCycle.SetBool("white", false);
             }
+            stage5Lights[0].SetBool("stage5", false);
+            stage5Lights[1].SetBool("stage5", false);
             colourStage++;
             colourStage = colourStage % 5;
             yield return new WaitForSeconds(4.5f);

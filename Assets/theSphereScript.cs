@@ -673,4 +673,82 @@ public class theSphereScript : MonoBehaviour
         hum.Stop();
         Audio.PlaySoundAtTransform("singleClick", transform);
     }
+
+	public readonly string TwitchHelpMessage = "Tap the sphere using !{0} tap <digit>. Hold the sphere using !{0} hold <length>. Commands can be chained together using semicolons and abbreviated.";
+
+	public IEnumerator ProcessTwitchCommand(string command)
+	{
+		string[] chainedCommands = command.Split(new[] { ';', ',' }, StringSplitOptions.RemoveEmptyEntries);
+		if (chainedCommands.Length > 1)
+		{
+			var commandRoutines = chainedCommands.Select(ProcessTwitchCommand).ToArray();
+			var invalidCommand = Array.Find(commandRoutines, routine => !routine.MoveNext());
+			if (invalidCommand != null)
+			{
+				yield return "sendtochaterror The command \"" + chainedCommands[Array.IndexOf(commandRoutines, invalidCommand)] + "\" is invalid.";
+				yield break;
+			}
+
+			foreach (IEnumerator routine in commandRoutines)
+				yield return routine;
+
+			yield break;
+		}
+
+		string[] split = command.ToLowerInvariant().Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+		if (split.Length == 2)
+		{
+			int tapDigit;
+			float holdTime;
+			if ((split[0] == "tap" || split[0] == "t") && int.TryParse(split[1], out tapDigit))
+			{
+				yield return null;
+				while (Mathf.FloorToInt(Bomb.GetTime()) % 10 != tapDigit)
+					yield return "trycancel The sphere was not tapped due to a request to cancel.";
+
+				sphere.OnInteract();
+				sphere.OnInteractEnded();
+				yield return new WaitForSeconds(0.1f);
+			}
+			else if ((split[0] == "hold" || split[0] == "h") && float.TryParse(split[1], out holdTime))
+			{
+				yield return null;
+
+				sphere.OnInteract();
+				while (Mathf.RoundToInt(Mathf.Abs(timeOfPress - Bomb.GetTime()) % 60) != holdTime)
+					yield return true; // Return true which will get returned by the force solve.
+				sphere.OnInteractEnded();
+				yield return new WaitForSeconds(0.1f);
+			}
+		}
+	}
+
+    public IEnumerator TwitchHandleForcedSolve()
+	{
+		// If someone has failed any of the stages before the current stage we would have to take a strike, so just force a pass.
+		if (stage > 0 && Enumerable.Range(0, stage - 1).Any(stageNumber => !correctInput[stageNumber]))
+		{
+			GetComponent<KMBombModule>().HandlePass();
+			yield break;
+		}
+
+		// Execute the rest of the stages that were incorrect
+		var commands = Enumerable.Range(stage, 11 - stage).Where(stageNumber => !correctInput[stageNumber]).Select(stageNumber => (requiresTap[stageNumber] ? "tap" : "hold") + " " + pressOrder[stageNumber]);
+		foreach (string command in commands)
+		{
+			IEnumerator enumerator = ProcessTwitchCommand(command);
+			while (enumerator.MoveNext())
+			{
+				object value = enumerator.Current;
+				if (value is string && value.ToString().StartsWith("trycancel "))
+				{
+					yield return true;
+				}
+				else
+				{
+					yield return value;
+				}
+			}
+		}
+	}
 }

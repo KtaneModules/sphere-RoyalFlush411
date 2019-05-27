@@ -689,6 +689,7 @@ public class theSphereScript : MonoBehaviour
 				yield break;
 			}
 
+			yield return null;
 			foreach (IEnumerator routine in commandRoutines)
 				yield return routine;
 

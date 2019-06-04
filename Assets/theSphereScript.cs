@@ -691,8 +691,11 @@ public class theSphereScript : MonoBehaviour
 
 			yield return null;
 			foreach (IEnumerator routine in commandRoutines)
+			{
 				yield return routine;
-
+				yield return "trycancel The chained command was not continued due to a request to cancel."
+			}
+			
 			yield break;
 		}
 

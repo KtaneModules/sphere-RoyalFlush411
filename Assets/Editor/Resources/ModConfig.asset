@@ -13,9 +13,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: sphere
   title: The Sphere
-  description: "The Sphere 1.3\nAnd you thought The Cube was bad\u2026\n\nModule ID:
-    sphere\n\nCreated by: Royal_Flu$h\nTweaks & TwitchPlays implemented by: Samfun123\n\nManual
+  description: "The Sphere 1.31\nAnd you thought The Cube was bad\u2026\n\nModule
+    ID: sphere\n\nCreated by: Royal_Flu$h\nTweaks & TwitchPlays implemented by: Samfun123\n\nManual
     available here: https://ktane.timwi.de/HTML/The%20Sphere.html"
-  version: 1.3
+  version: 1.31
   outputFolder: build
   previewImage: {fileID: 2800000, guid: 3a0f951aef026424a827b923acc6de62, type: 3}

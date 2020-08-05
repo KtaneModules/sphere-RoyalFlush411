@@ -199,16 +199,22 @@ public class theSphereScript : MonoBehaviour
         if(AABatts == 2 && Bomb.GetPortCount(Port.Serial) == 1 && Bomb.IsIndicatorOff("FRQ") && Bomb.GetPortPlateCount() == 3)
         {
             pressOrder[0] = tapTimes[0];
+            requiresTap[0] = true;
             pressOrder[1] = holdTimes[0];
             pressOrder[2] = tapTimes[1];
+            requiresTap[2] = true;
             pressOrder[3] = holdTimes[1];
             pressOrder[4] = tapTimes[2];
+            requiresTap[4] = true;
             pressOrder[5] = holdTimes[2];
             pressOrder[6] = tapTimes[3];
+            requiresTap[6] = true;
             pressOrder[7] = holdTimes[3];
             pressOrder[8] = tapTimes[4];
+            requiresTap[8] = true;
             pressOrder[9] = holdTimes[4];
             pressOrder[10] = tapTimes[5];
+            requiresTap[10] = true;
             orderDeterminer = 10;
         }
         else
